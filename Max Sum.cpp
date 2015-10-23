@@ -215,9 +215,11 @@ public:
                     suffix_max+=inp_sub[k];
                 }
                 if(suffix_max > global_max)
+                {
                     *start = i;
                     *end = j;
                     global_max = suffix_max;
+                }
             }
               
         }
@@ -245,7 +247,7 @@ public:
 class Solution {
 public:
     //暴力求解法
-    int maxSubArray(vector<int>& inp_sub) {
+    int maxSubArray(vector<int>& inp_sub,int *start ,int *end) {
         int global_max=-1000;//保证全负数时的最大子序列
         int suffix_max;
         //i表示起点,j表示终点
@@ -255,7 +257,11 @@ public:
             {
                   suffix_max+=inp_sub[j];
                 if(suffix_max > global_max)
+                {
                     global_max = suffix_max;
+                    *start = i;
+                    *end = j;
+                }
             }
               
         }
@@ -264,6 +270,61 @@ public:
 };
 
 
+/*
+ 分治法（divide-and-conquer）
+ 原理：最大子序列可能在三个地方出现，或者在左半部，或者在右半部，或者跨越输入数据的中部而占据左右两部分。
+      前两种情况递归求解，第三种情况的最大和可以通过求出前半部分最大和
+ （包含前半部分最后一个元素）以及后半部分最大和（包含后半部分的第一个元素）相加而得到。
 
+*/
 
-
+class Solution {
+public:
+    //分治法
+    int maxSubArray(vector<int>& nums) {
+      return maxSubSum(nums,0,nums.size()-1); 
+    }
+    int maxSubSum(vector<int>& nums,int left,int right)
+    {
+        //只有一个元素情况
+        if(left == right)
+            return nums[left];
+            
+        int center = (left+right)/2;
+        //递归求解
+        int maxLeftSum = maxSubSum( nums,left,center);
+        int maxRightSum = maxSubSum( nums,center+1,right);
+        
+        //从center到left的最大序列和
+        int maxLeftBorderSum = -1000 ;//保证全负数时的最大子序列，取更小的负数来保存负数
+        int leftBorderSum = 0;
+        for(int i = center;i >=left; -- i)
+        {
+            leftBorderSum+=nums[i];
+            if(leftBorderSum > maxLeftBorderSum)
+                maxLeftBorderSum = leftBorderSum;
+        }
+        //从center+1到right的最大序列和
+        int maxRightBorderSum = -1000 ;
+        int rightBorderSum = 0;
+         for(int j = center+1;j <=right; ++ j)
+        {
+            rightBorderSum+=nums[j];
+            if(rightBorderSum > maxRightBorderSum)
+                maxRightBorderSum = rightBorderSum;
+        }
+        return max3(maxLeftSum,maxRightSum,maxLeftBorderSum+maxRightBorderSum);
+        //求出从left到center的最大序列和 与 从center+1到right的最大序列和中的最大值
+    }
+    int max3( int a,int b,int c)
+    {
+        if(a < b)
+        {
+            a = b;
+        }
+        if(a < c)
+            a = c;
+         return a;
+    }
+    
+};
