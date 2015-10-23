@@ -130,3 +130,140 @@ int maxSubArray(vector<int>& inp_sub,int &start ,int & end) {
         }
         return global_max;
     }
+//c语言版
+
+//最大子序列求和问题
+#include <stdio.h>
+int maxSubArray(int* inp_sub, int number , int *start ,int *end);
+int number[1001];
+int main ()
+{
+    int i;
+    int start_position,end_position;
+    int sum,N;
+    int line,which_line;
+    which_line = 1;
+    scanf("%d",&line);
+    while(line--){
+        scanf("%d",&N);
+        for(i=0;i<N;i++)
+            scanf("%d",&number[i]);
+        printf("Case %d:\n",which_line);
+        sum = maxSubArray( number,N,&start_position,&end_position);
+        printf("%d %d %d\n",sum,start_position+1,end_position+1);
+        if(line!=0)
+            printf("\n");
+        ++which_line;
+    }
+}
+
+/*归纳法，假设可以找到规模小于n的最大子序列S={x1,x2,...}
+    以及作为后缀的最大子序列S’,将Xn加入到S’中，与S进行比较，
+    最大的就是最大子序列
+*/
+int maxSubArray(int* inp_sub, int number , int *start ,int *end)
+{
+    int global_max=-1000;//规模小于n的最大子序列和
+    int suffix_max=0;//作为后缀的最大子序列和
+    int i;
+    int first = 0;
+    int second = 0;//标记序列
+    //用first = -1俩标记一段序列开始
+    for( i= 0;i<number;++i)
+    {
+        if( suffix_max==0)
+            first = second =i;
+        suffix_max = suffix_max+inp_sub[i];
+        second = i;
+        if(suffix_max>global_max)
+        {
+            *start = first;
+            *end = second;
+            global_max = suffix_max ;
+        }
+        if(suffix_max<0)
+        {
+                suffix_max = 0;
+        }
+    }
+    return global_max;
+}
+
+
+
+/*  
+  暴力求解法原理：利用i和j的位置遍历每一个子序列
+  并求和，存储最大值
+  复杂度o(n^3)
+  
+*/
+
+class Solution {
+public:
+    //暴力求解法
+    int maxSubArray(vector<int>& inp_sub,int *start ,int *end) {
+        int global_max=-1000;//保证全负数时的最大子序列
+        int suffix_max;
+        //i表示起点,j表示终点
+        for(int i =0;i<inp_sub.size();++i)
+        {
+            for(int j = i;j < inp_sub.size();++j)
+            {
+                  suffix_max=0;
+                for(int k=i;k<=j;++k)
+                {
+                    suffix_max+=inp_sub[k];
+                }
+                if(suffix_max > global_max)
+                    *start = i;
+                    *end = j;
+                    global_max = suffix_max;
+            }
+              
+        }
+        return global_max;
+    }
+
+};
+
+
+
+
+
+
+
+
+/*
+
+  暴力求解法优化版
+  原理：暴力求解时：i =0,j=2时，计算inp_sub[0]+inp_sub[1]+inp_sub[2]
+  当i=0,4时，计算inp_sub[0]+inp_sub[1]+inp_sub[2]+inp_sub[3]+inp_sub[4]
+  其中前三个属于重复计算
+  可以将他们去掉
+  复杂度：o(n^2)
+*/
+class Solution {
+public:
+    //暴力求解法
+    int maxSubArray(vector<int>& inp_sub) {
+        int global_max=-1000;//保证全负数时的最大子序列
+        int suffix_max;
+        //i表示起点,j表示终点
+        for(int i =0;i<inp_sub.size();++i)
+        {
+            for(int j = i;j < inp_sub.size();++j)
+            {
+                  suffix_max+=inp_sub[j];
+                if(suffix_max > global_max)
+                    global_max = suffix_max;
+            }
+              
+        }
+        return global_max;
+    }
+};
+
+
+
+
+
